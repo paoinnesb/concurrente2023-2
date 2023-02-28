@@ -10,7 +10,6 @@ public class PrimeNumberCalculator implements Runnable{
     public static int inicio;
     public static int tope;
 
-
     public PrimeNumberCalculator() {
         this.threads = 1;
     }
@@ -30,25 +29,37 @@ public class PrimeNumberCalculator implements Runnable{
 
         this.longitudSubInter = this.threads;
         this.numPrimo = n;
+        int contador = 0;
 
         /**Casos Base. */
         if(n==0 || n ==1){
             this.result=false;
         }
 
+        /**Creamos nuestros hilos. */
+        Thread[] hilos = new Thread[this.threads];
+
         /**Dividimos nuestro conjunto de  2-sqrt(n) en conjuntos de tamaño this.longitudSubInter*/
         for(int i = 2; i<=(int)Math.sqrt(n);i=i+this.longitudSubInter){
             /**Aquí la idea es indicarle a nuestros hilos donde empezar a verificar y donde terminan. */
             PrimeNumberCalculator hilo = new PrimeNumberCalculator(i,i+this.longitudSubInter,this.numPrimo);
+            hilos[contador]=new Thread(hilo);
+            contador++;
         }
 
-        /**Creamos nuestros hilos. */
-        Thread[] threads = new Thread[this.threads];
-
-        for (Thread thread : threads) {
+        for (Thread thread : hilos) {
             thread.start();
         }
 
+
+        /**for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                System.out.println("Ocurrió una excepción al esperar a que los threads terminen su ejecución.");
+                e.printStackTrace();
+            }
+        }*/
         return this.result;
 
     }
