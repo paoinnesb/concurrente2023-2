@@ -7,15 +7,17 @@ public class PrimeNumberCalculator implements Runnable{
     private static int numPrimo;
     public static boolean result;
     public static int longitudSubInter; //Dividimos el intervalo [2,N-1] en this.threads cantidad de sub interbalos, uno por cada hilo
-    public static int inicio;
-    public static int tope;
+    public int inicio;
+    public int tope;
 
     public PrimeNumberCalculator() {
         this.threads = 1;
+        this.result=true;
     }
 
     public PrimeNumberCalculator(int threads) {
         this.threads = threads > 1 ? threads : 1;
+        this.result=true;
     }
 
     public PrimeNumberCalculator(int inicio,int tope,int numPrimo){
@@ -26,6 +28,10 @@ public class PrimeNumberCalculator implements Runnable{
     
 
     public boolean isPrime(int n) throws InterruptedException{
+        this.result = true;
+        if(n<0){
+            return true;
+        }
         this.numPrimo = n;
         this.longitudSubInter = (int)(Math.sqrt(this.numPrimo)+1)/this.threads;
 
@@ -35,15 +41,15 @@ public class PrimeNumberCalculator implements Runnable{
 
         /**Casos Base. */
         if(n==0 || n ==1){
-            return this.result = false;
+            return false;
         }
 
-        int top = (int)Math.ceil(Math.sqrt(n));
+        int top = (int)Math.floor(Math.sqrt(n));
 
         /**Ahora, dividimos el intervalo [2,N-1]. Y cada uno es asignado a un hilo. */
         for(int i = 2;n>1 && i<=top;i=i+this.longitudSubInter){
             /**Creamos los hilos y los agregamos a nuestro arreglo de hilos. */
-            PrimeNumberCalculator aux = new PrimeNumberCalculator(i,i++,this.numPrimo);
+            PrimeNumberCalculator aux = new PrimeNumberCalculator(i,i+this.longitudSubInter,this.numPrimo);
             hilos[contador]=new Thread(aux);
             contador++;
         }
@@ -60,20 +66,18 @@ public class PrimeNumberCalculator implements Runnable{
                 e.printStackTrace();
             }
         }
-
+        
         return this.result;
     }
     
 
     @Override
     public void run(){
-
         for(int i = this.inicio;i<=this.tope;i++){
             if(this.numPrimo % i == 0){
+                //this.result=false;
                 this.result=false;
             }
         }
-
-        this.result=true;
     }
 }

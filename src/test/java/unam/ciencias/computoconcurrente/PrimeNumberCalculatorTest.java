@@ -8,7 +8,7 @@ public class PrimeNumberCalculatorTest {
 
     PrimeNumberCalculator primeNumberCalculator;
 
-    @Test
+   @Test
     void zeroIsNotPrime() throws InterruptedException{
         primeNumberCalculator = new PrimeNumberCalculator();
 
@@ -68,7 +68,7 @@ public class PrimeNumberCalculatorTest {
     @Test
     void isNotPrimeSequentialBigNumber() throws InterruptedException{
         primeNumberCalculator = new PrimeNumberCalculator();
-
+        System.out.println("Aquí con un hilo");
         assertFalse(primeNumberCalculator.isPrime(1298777));
     }
 
@@ -82,7 +82,7 @@ public class PrimeNumberCalculatorTest {
     @Test
     void isNotPrimeConcurrentBigNumber() throws InterruptedException{
         primeNumberCalculator = new PrimeNumberCalculator(4);
-
+        System.out.println("Aquí con 4.");
         assertFalse(primeNumberCalculator.isPrime(1298777));
     }
 
