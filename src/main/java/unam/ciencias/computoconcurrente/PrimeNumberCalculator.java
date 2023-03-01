@@ -26,53 +26,54 @@ public class PrimeNumberCalculator implements Runnable{
     
 
     public boolean isPrime(int n) throws InterruptedException{
-
-        this.longitudSubInter = this.threads;
         this.numPrimo = n;
+        this.longitudSubInter = (int)(Math.sqrt(this.numPrimo)+1)/this.threads;
+
+        /**Creamos nuestros hilos. */
+        Thread[] hilos = new Thread[this.threads];
         int contador = 0;
 
         /**Casos Base. */
         if(n==0 || n ==1){
-            this.result=false;
+            return this.result = false;
         }
 
-        /**Creamos nuestros hilos. */
-        Thread[] hilos = new Thread[this.threads];
+        int top = (int)Math.ceil(Math.sqrt(n));
 
-        /**Dividimos nuestro conjunto de  2-sqrt(n) en conjuntos de tamaño this.longitudSubInter*/
-        for(int i = 2; i<=(int)Math.sqrt(n);i=i+this.longitudSubInter){
-            /**Aquí la idea es indicarle a nuestros hilos donde empezar a verificar y donde terminan. */
-            PrimeNumberCalculator hilo = new PrimeNumberCalculator(i,i+this.longitudSubInter,this.numPrimo);
-            hilos[contador]=new Thread(hilo);
+        /**Ahora, dividimos el intervalo [2,N-1]. Y cada uno es asignado a un hilo. */
+        for(int i = 2;n>1 && i<=top;i=i+this.longitudSubInter){
+            /**Creamos los hilos y los agregamos a nuestro arreglo de hilos. */
+            PrimeNumberCalculator aux = new PrimeNumberCalculator(i,i++,this.numPrimo);
+            hilos[contador]=new Thread(aux);
             contador++;
         }
 
-        for (Thread thread : hilos) {
-            thread.start();
+        for(Thread t:hilos){
+            t.start();
         }
 
-
-        /**for (Thread thread : threads) {
+        for (Thread th : hilos) {
             try {
-                thread.join();
+                th.join();
             } catch (InterruptedException e) {
                 System.out.println("Ocurrió una excepción al esperar a que los threads terminen su ejecución.");
                 e.printStackTrace();
             }
-        }*/
-        return this.result;
+        }
 
+        return this.result;
     }
     
 
     @Override
     public void run(){
-        /** Cada hilo, lo que debería hacer es verificar que en su inicio y tope no haya algun entero que divida al numero que queremos verificar que es this.numPrimo. */
-        for(int i = this.inicio;i<=tope;i++){
-            if(i%this.numPrimo==0){
+
+        for(int i = this.inicio;i<=this.tope;i++){
+            if(this.numPrimo % i == 0){
                 this.result=false;
             }
         }
-        this.result = true;
+
+        this.result=true;
     }
 }
