@@ -5,22 +5,21 @@ public class Semaphore{
     /**
     El valor que tendra el semáforo.
      */
-    int valor;
+    protected int valor=0;
 
     /**
     Si se crea un semaforo sin un valor especifico será considreado uno binario.
      */
-    public Semaphore(){
-        int valor = 1;
+    protected Semaphore(){
+        int valor = 0;
     }
 
-    public Semaphore(int v){
-        if(v<0){
-            System.out.println("NO pude ser negativo el valor del semaforo.");
-        }else{
-            int valor = v;
-        }
-    }
+    protected Semaphore(int initial) {
+      if (initial < 0) throw new IllegalArgumentException("initial<0");
+      value = initial;
+   }
+
+
 
     /**
     Función para disminuir el valor del semaforo. 
