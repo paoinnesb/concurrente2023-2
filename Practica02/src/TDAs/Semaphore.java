@@ -1,3 +1,5 @@
+//Descomentar la linea siguiente si se mueve o copia el archivo.
+//package unam.ciencias.computoconcurrente;
 
 
 public class Semaphore{
@@ -11,31 +13,41 @@ public class Semaphore{
     Si se crea un semaforo sin un valor especifico será considreado uno binario.
      */
     protected Semaphore(){
-        int valor = 0;
+        int this.valor =O 0;
     }
 
-    protected Semaphore(int initial) {
+    public Semaphore(int initial) {
       if (initial < 0) throw new IllegalArgumentException("initial<0");
-      value = initial;
+      this.valor = initial;
+      if (initial > 1) throw new IllegalArgumentException("initial>1");
    }
-
-
 
     /**
     Función para disminuir el valor del semaforo. 
     */
     public synchronized void P(){
         this.valor--;
+      if (this.valor < 0) {
+         while (true) {  
+            try {
+               wait();
+               break;       
+            } catch (InterruptedException e) {
+               System.err.println("Semaphore.P(): InterruptedException, wait again");
+               if (this.valor >= 0) break; 
+               else continue;         
+            }
+         }
+      }
     }
 
     /**
     Función para aumentar el valor del semaforo.
     */
-    public synchronized void V() throws InterruptedException{
-        while(this.valor==0){
-            wait();
-        }
-        this.valor--;
-    }
+    public synchronized void V() { 
+      this.valor++;                    
+      if (this.valor <= 0) notify(); 
+      if (this.valor > 1) this.valor = 1; //Como queremos que sea binario, ponemos un tope al maximo valor posible.
+   }   
 }
 
