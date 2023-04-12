@@ -1,42 +1,33 @@
 package unam.ciencias.computoconcurrente;
 
 public class App {
+    public static void main(String[] args) throws InterruptedException {
+        Semaphore semaforo = new Semaphore(4);
+        Semaphore[] tenedores = new Semaphore[5];
+        Filosofo[] filosofos = new Filosofo[5];
 
-    //Este es el codigo del DININGSERVER.
-   private static final int
-      THINKING = 0, HUNGRY = 1, EATING = 2;
-   private int numPhils = 0;
-   private int[] state = null;
-   private Semaphore[] fork = null;
+        for (int i = 0; i < 5; i++) {
+            tenedores[i] = new Semaphore(1);
+        }
 
-   public DiningServer(int numPhils) {
-      System.out.println("El comedor tendrá:"+numPhils);
-      this.numPhils = numPhils;
-      state = new int[numPhils];
-      for (int i = 0; i < numPhils; i++) state[i] = THINKING;
-      fork = new Semaphore[numPhils];
-      for (int i = 0; i < numPhils; i++) fork[i] = new Semaphore(1);
-   }
+        for (int i = 0; i < 5; i++) {
+            filosofos[i] = new Filosofo(i, tenedores[i], tenedores[(i + 1) % 5], semaforo);
+            filosofos[i].start();
+        }
 
-   private final int left(int i) { return (numPhils + i - 1) % numPhils; }
+        boolean todosHanTerminadoDeComer = false;
+        while (!todosHanTerminadoDeComer) {
+            todosHanTerminadoDeComer = true;
+            for (int i = 0; i < 5; i++) {
+                if (!filosofos[i].haTerminadoDeComer()) {
+                    todosHanTerminadoDeComer = false;
+                    break;
+                }
+            }
+            Thread.sleep(500);
+        }
 
-   private final int right(int i) { return (i + 1) % numPhils; }
-
-   public void takeForks(int i) {
-      state[i] = HUNGRY;
-      if (i > 0) { P(fork[i]); P(fork[right(i)]); }
-      else       { P(fork[right(i)]); P(fork[i]); }
-      state[i] = EATING;
-   }
-
-   public void putForks(int i) {
-      V(fork[i]); V(fork[right(i)]);
-      state[i] = THINKING;
-   }
-
-   //AQUI TERMINA EL CODIGO DEL DINING SERVER. ESTO SE EJECUTA EN MAIN.
-
-    public static void main(String[] a) throws InterruptedException {
-        
+        System.out.println("Todos los filósofos han terminado de comer. Terminando la ejecución.");
+        System.exit(0);
     }
 }
