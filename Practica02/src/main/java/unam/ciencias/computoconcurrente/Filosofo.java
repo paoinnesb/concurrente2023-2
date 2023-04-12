@@ -1,40 +1,36 @@
 package unam.ciencias.computoconcurrente;
 public class Filosofo extends Thread {
-    private int id;
+    private int id; 
     private Semaphore tenedorIzq;
     private Semaphore tenedorDer;
-    private Semaphore semaforo;
-    private boolean haTerminadoDeComer;
+    private boolean haTerminadoDeComer; //indica si ya comió el filósofo
 
-    public Filosofo(int id, Semaphore tenedorIzq, Semaphore tenedorDer, Semaphore semaforo) {
+    public Filosofo(int id, Semaphore tenedorIzq, Semaphore tenedorDer) {
         this.id = id;
         this.tenedorIzq = tenedorIzq;
         this.tenedorDer = tenedorDer;
-        this.semaforo = semaforo;
         this.haTerminadoDeComer = false;
     }
 
     public void run() {
-        while (!haTerminadoDeComer) {
+        while (!haTerminadoDeComer) { //para que sólo se ejecute una vez
             try {
-                semaforo.acquire();
-                tenedorIzq.acquire();
-                tenedorDer.acquire();
-                System.out.println("El filosofo " + id + " esta comiendo.");
-                Thread.sleep(1000);
-                tenedorDer.release();
+                tenedorIzq.acquire(); //se requiere el tenedor de la izquierda 
+                tenedorDer.acquire(); // se riquiere el tenedor de la derecha
+                System.out.println("El filósofo " + id + " está comiendo."); //cuando llega a este punto es porque los dos ya se pudieron tomar
+                Thread.sleep(1000); //esperamos un segundo a que coma
+                tenedorDer.release(); //desocupamos los tenedores
                 tenedorIzq.release();
-                semaforo.release();
-                System.out.println("El filosofo " + id + " esta pensando.");
+                System.out.println("El filósofo " + id + " está pensando."); //decimos que ahora está pensando
                 Thread.sleep(1000);
-                haTerminadoDeComer = true;
+                haTerminadoDeComer = true; //marcamos que ahora ya comió
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public boolean haTerminadoDeComer() {
+    public boolean haTerminadoDeComer() { //para que la clase principal pueda saber cuando haya termiando de comer
         return haTerminadoDeComer;
     }
 }
