@@ -1,45 +1,27 @@
+package unam.ciencias.computoconcurrente;
 
+import java.util.Random;
 
-class Lector extends Lector_Escritor implements Runnable{
-    /**
-    Este será el id de nuestro lector o escritor.
-     */
-    private int id = 0;
-    
-    /**
-    El tiempo en milisegundos que en general dormirá el lector 
-     */
-    private int rNap = 0;
+public class Lector implements Runnable {
+   private int id;
+   private Database database;
 
-    /**
-    La db o el pizarron que compartirán lectores y escritores.
-     */
-    private Database db = null;
+   public Lector(int id, Database database) {
+       this.id = id;
+       this.database = database;
+   }
 
-    //La idea que extendamos Lector_Escritor, es para no crear los atributos anteriores y aquí en vez de usar this, utilizar super. A ver si esto funciona.
-    public Lector(int id, int rNap, Database db){
-        this.id = id;
-        this.rNap = rNap;
-        this.db = db;
-    }
-
-    public void run() {
-      int napping;
-      while (true) {
-         napping = 1 + (int) random(rNap);
-         System.out.println("age=" + age() + ", " + getName()
-            + " napping for " + napping + " ms");
-         nap(napping);
-         System.out.println("age=" + age() + ", " + getName()
-            + " wants to read");
-         db.startRead(id);
-         napping = 1 + (int) random(rNap);
-         System.out.println("age=" + age() + ", " + getName()
-            + " reading for " + napping + " ms");
-         nap(napping);
-         db.endRead(id);
-         System.out.println("age=" + age() + ", " + getName()
-            + " finished reading");
-      }
+   @Override
+   public void run() {
+       try {
+            int i = 0;
+           while (true) {
+               database.leer(id);
+               i++;
+               Thread.sleep(500);
+           }
+       } catch (InterruptedException e) {
+           e.printStackTrace();
+       }
    }
 }

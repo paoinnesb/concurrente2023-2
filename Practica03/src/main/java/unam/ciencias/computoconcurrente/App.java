@@ -1,54 +1,37 @@
 package unam.ciencias.computoconcurrente;
 
 public class App {
+   private static int NUM_LECTORES = 3;
+   private static int NUM_ESCRITORES = 2;
+   private static Thread[] lectores = new Thread[NUM_LECTORES];
+   private static Thread[] escritores = new Thread[NUM_ESCRITORES];
 
-    public static void main(String[] a) throws InterruptedException {
-        // parse command line arguments, if any, to override defaults
-      GetOpt go = new GetOpt(a, "UE:W:e:w:R:");
-      go.optErr = true;
-      String usage = "Usage: -E numR -W numW -e rNap -w wNap -R runTime";
-      int ch = -1;
-      int numReaders = 3;
-      int numWriters = 2;
-      int rNap = 2;       // defaults
-      int wNap = 3;       // in
-      int runTime = 60;   // seconds
-      while ((ch = go.getopt()) != go.optEOF) {
-         if      ((char)ch == 'U') {
-            System.out.println(usage);  System.exit(0);
+   public static void main(String[] args) {
+         Database database = new Database();
+         if(args.length > 2){
+            NUM_LECTORES = Integer.parseInt(args[0]);
+            NUM_ESCRITORES = Integer.parseInt(args[1]);
          }
-         else if ((char)ch == 'E')
-            numReaders = go.processArg(go.optArgGet(), numReaders);
-         else if ((char)ch == 'W')
-            numWriters = go.processArg(go.optArgGet(), numWriters);
-         else if ((char)ch == 'e')
-            rNap = go.processArg(go.optArgGet(), rNap);
-         else if ((char)ch == 'w')
-            wNap = go.processArg(go.optArgGet(), wNap);
-         else if ((char)ch == 'R')
-            runTime = go.processArg(go.optArgGet(), runTime);
-         else {
-            System.err.println(usage);  System.exit(1);
+         // Crear lectores
+         for (int i = 0; i < NUM_LECTORES; i++) {
+            Lector lector = new Lector(i, database);
+            Thread hiloLector = new Thread(lector);
+            lectores[i] = hiloLector;
          }
-      }
-      System.out.println("ReadersWriters: numReaders=" + numReaders
-         + ", numWriters=" + numWriters
-         + ", rNap=" + rNap + ", wNap=" + wNap + ", runTime=" + runTime);
 
-      // create the database to be read/written
-      Database db = new Database();
+         // Crear escritores
+         for (int i = 0; i < NUM_ESCRITORES; i++) {
+            Escritor escritor = new Escritor(i, database);
+            Thread hiloEscritor = new Thread(escritor);
+            escritores[i] = hiloEscritor;
+         }
 
-      // create the Readers and Writers (with self-starting threads)
-      for (int i = 0; i < numReaders; i++)
-         new Reader("Reader", i, rNap*1000, db);
-      for (int i = 0; i < numWriters; i++)
-         new Writer("WRITER", i, wNap*1000, db);
-      System.out.println("All threads started");
+         for (int i = 0; i < NUM_ESCRITORES; i++) {
+            escritores[i].start();
+         }
 
-      // let them run for a while
-      nap(runTime*1000);
-      System.out.println("age()=" + age()
-         + ", time to stop the threads and exit");
-      System.exit(0);
-    }
+         for (int i = 0; i < NUM_LECTORES; i++) {
+            lectores[i].start();
+         }
+   }
 }
